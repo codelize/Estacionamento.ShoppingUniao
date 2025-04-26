@@ -1,0 +1,6 @@
+@Estacionamento.API_HostAddress = http://localhost:5219
+
+GET {{Estacionamento.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
