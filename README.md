@@ -47,7 +47,7 @@ O sistema auxilia motoristas, especialmente motoristas de aplicativo, a encontra
 - [x] Setup inicial da solução
 - [x] Estrutura de projetos criada
 - [x] Entidade `Vaga` criada
-- [ ] Entidade `Loja`
+- [x] Entidade `Loja` criada
 - [ ] Sistema de reservas de vagas
 - [ ] Rotas internas
 - [ ] Front-end (Angular)
