@@ -18,4 +18,10 @@ app.UseHttpsRedirection();
 
 app.UseFastEndpoints(); // FastEndPoints deve ser registrado no pipeline
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<EstacionamentoDbContext>();
+    DbSeeder.Seed(context);
+}
+
 app.Run();
