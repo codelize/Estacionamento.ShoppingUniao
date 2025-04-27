@@ -24,12 +24,12 @@ public static class DbSeeder
         {
             var vagas = new List<Vaga>
             {
-                new Vaga("A01", "Setor Azul"),
-                new Vaga("A02", "Setor Azul"),
-                new Vaga("V01", "Setor Verde"),
-                new Vaga("V02", "Setor Verde"),
-                new Vaga("R01", "Setor Vermelho"),
-                new Vaga("R02", "Setor Vermelho")
+                new Vaga("A01", "Setor Azul", 9, 19),
+                new Vaga("A02", "Setor Azul", 11, 19),
+                new Vaga("V01", "Setor Verde", 14, 29),
+                new Vaga("V02", "Setor Verde", 16, 29),
+                new Vaga("R01", "Setor Vermelho", 4, 29),
+                new Vaga("R02", "Setor Vermelho", 6, 29)
             };
 
             context.Vagas.AddRange(vagas);
