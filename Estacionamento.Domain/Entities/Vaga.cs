@@ -20,7 +20,7 @@ public class Vaga
         Disponivel = false;
     }
 
-    public void Libera()
+    public void Liberar()
     {
         Disponivel = true;
     }
