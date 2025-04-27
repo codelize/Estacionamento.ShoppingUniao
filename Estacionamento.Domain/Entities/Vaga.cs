@@ -9,12 +9,14 @@ public class Vaga
     public int CoordenadaX { get; private set; }
     public int CoordenadaY { get; private set; }
 
-    public Vaga(string numero, string setor)
+    public Vaga(string numero, string setor, int coordenadaX, int coordenadaY)
     {
         Id = Guid.NewGuid();
         Numero = numero;
         Setor = setor;
         Disponivel = true; // Quando criada, a vaga estará ´livre
+        CoordenadaX = coordenadaX;
+        CoordenadaY = coordenadaY;
     }
 
     public void Ocupa()
