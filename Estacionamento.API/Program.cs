@@ -1,34 +1,21 @@
+using Estacionamento.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using FastEndpoints;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configuração de servições da aplicação
+builder.Services.AddFastEndpoints();
 
-var app = builder.Build();
+// Configuração do banco de dados InMemory
+builder.Services.AddDbContext<EstacionamentoDbContext>(options =>
+    options.UseInMemoryDatabase("EstacionamentoDb"));
 
-// Configure the HTTP request pipeline.
+var app = builder.Build();  
 
-app.UseHttpsRedirection();
+// Configuração da pipeline da aplicação 
+app.UseHttpsRedirection();  
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
+app.UseFastEndpoints(); // FastEndPoints deve ser registrado no pipeline
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

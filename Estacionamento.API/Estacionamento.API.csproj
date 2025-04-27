@@ -17,4 +17,10 @@
     <Folder Include="Configurations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" Version="6.0.0" />
+    <PackageReference Include="FastEndpoints.Swagger" Version="6.0.0" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+  </ItemGroup>
+
 </Project>
