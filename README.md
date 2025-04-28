@@ -57,6 +57,6 @@ O sistema auxilia motoristas, especialmente motoristas de aplicativo, a encontra
 
 ## 🤝 Contribuições
 
-Este projeto é pessoal e para fins de estudo
+Este projeto é pessoal e para fins de estudo.
 
 
