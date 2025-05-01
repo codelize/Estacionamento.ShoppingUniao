@@ -11,7 +11,7 @@ O sistema auxilia motoristas, especialmente motoristas de aplicativo, a encontra
 
 - Escanear QR Code para iniciar busca de vaga.
 - Escolher a loja de destino.
-- Direcionar o usuário até a vaga mais próxima da loja. 
+- Direcionar o usuário até a vaga mais próxima da loja.
 - Exibir o caminho até a loja após estacionar.
 - Atualização em tempo real de vagas disponíveis.
 
