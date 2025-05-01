@@ -2,7 +2,7 @@
 
 ## 📚 Descrição
 
-Sistema de gerenciamento de estacionamento indoor para o Shopping União de Osasco.  
+Sistema de gerenciamento de estacionamento indoor para o Shopping União de Osasco. 
 O sistema auxilia motoristas, especialmente motoristas de aplicativo, a encontrar vagas disponíveis próximas às lojas desejadas, utilizando leitura de QR Code e rotas internas simuladas.
 
 ---
