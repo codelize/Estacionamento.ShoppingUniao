@@ -1,10 +1,16 @@
-﻿namespace Estacionamento.Domain.Entities;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Estacionamento.Domain.Entities;
 
 public class Vaga
 {
+    [BsonId]
+    [BsonRepresentation(BsonType.String)]
     public Guid Id { get; private set; }
-    public string Numero { get; private set; }
-    public string Setor { get; private set; }  
+
+    public string Numero { get; private set; } = string.Empty;
+    public string Setor { get; private set; } = string.Empty;
     public bool Disponivel { get; private set; }
     public int CoordenadaX { get; private set; }
     public int CoordenadaY { get; private set; }
@@ -14,10 +20,13 @@ public class Vaga
         Id = Guid.NewGuid();
         Numero = numero;
         Setor = setor;
-        Disponivel = true; // Quando criada, a vaga estará ´livre
+        Disponivel = true; // Quando criada, a vaga estará livre
         CoordenadaX = coordenadaX;
         CoordenadaY = coordenadaY;
     }
+
+    // Construtor vazio para MongoDB
+    public Vaga() { }
 
     public void Ocupa()
     {
@@ -29,4 +38,3 @@ public class Vaga
         Disponivel = true;
     }
 }
-

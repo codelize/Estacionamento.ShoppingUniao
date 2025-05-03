@@ -1,4 +1,4 @@
-﻿namespace Estacionamento.API.Endpoints.Responses
+﻿namespace Estacionamento.Application.Contracts.Responses
 {
     public class InstrucaoDeRotaResponse
     {

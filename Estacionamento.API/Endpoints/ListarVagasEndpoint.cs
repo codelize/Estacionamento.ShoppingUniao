@@ -1,16 +1,16 @@
 ﻿using FastEndpoints;
-using Estacionamento.Infrastructure.Persistence;
+using Estacionamento.Infrastructure.Persistence.Repositories;
 using Estacionamento.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
 namespace Estacionamento.API.Endpoints;
+
 public class ListarVagasEndpoint : EndpointWithoutRequest<List<Vaga>>
 {
-    private readonly EstacionamentoDbContext _context;
+    private readonly VagaRepository _vagaRepository;
 
-    public ListarVagasEndpoint(EstacionamentoDbContext context)
+    public ListarVagasEndpoint(VagaRepository vagaRepository)
     {
-        _context = context;
+        _vagaRepository = vagaRepository;
     }
 
     public override void Configure()
@@ -18,10 +18,10 @@ public class ListarVagasEndpoint : EndpointWithoutRequest<List<Vaga>>
         Get("/vagas");
         AllowAnonymous();
     }
-        
+
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var vagas = await _context.Vagas.ToListAsync(ct);
+        var vagas = await _vagaRepository.ListarTodasAsync(ct);
         await SendAsync(vagas);
     }
 }

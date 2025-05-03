@@ -1,27 +1,39 @@
-using Estacionamento.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using Estacionamento.Application.Services;
+using Estacionamento.Infrastructure.Configurations;
+using Estacionamento.Infrastructure.Persistence.Repositories;
 using FastEndpoints;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração de servições da aplicação
+// FastEndpoints
 builder.Services.AddFastEndpoints();
 
-// Configuração do banco de dados InMemory
-builder.Services.AddDbContext<EstacionamentoDbContext>(options =>
-    options.UseInMemoryDatabase("EstacionamentoDb"));
+// MongoDB settings
+builder.Services.Configure<MongoSettings>(
+    builder.Configuration.GetSection("MongoSettings"));
 
-var app = builder.Build();  
+builder.Services.AddSingleton<IMongoClient>(sp =>
+    new MongoClient(builder.Configuration["MongoSettings:ConnectionString"]));
 
-// Configuração da pipeline da aplicação 
-app.UseHttpsRedirection();  
-
-app.UseFastEndpoints(); // FastEndPoints deve ser registrado no pipeline
-
-using (var scope = app.Services.CreateScope())
+// Adiciona o IMongoDatabase
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
-    var context = scope.ServiceProvider.GetRequiredService<EstacionamentoDbContext>();
-    DbSeeder.Seed(context);
-}
+    var client = sp.GetRequiredService<IMongoClient>();
+    var dbName = builder.Configuration["MongoSettings:DatabaseName"];
+    return client.GetDatabase(dbName);
+});
+
+// Repositórios
+builder.Services.AddScoped<VagaRepository>();
+builder.Services.AddScoped<LojaRepository>();
+
+// Serviços de aplicação
+builder.Services.AddScoped<RotaService>();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.UseFastEndpoints();
 
 app.Run();

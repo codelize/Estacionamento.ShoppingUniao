@@ -1,21 +1,21 @@
 ﻿using FastEndpoints;
-using Estacionamento.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-
+using Estacionamento.Infrastructure.Persistence.Repositories;
+using Estacionamento.Domain.Entities;
 
 namespace Estacionamento.API.Endpoints;
+
 public class OcuparVagaEndpoint : EndpointWithoutRequest
 {
-    private readonly EstacionamentoDbContext _context;
+    private readonly VagaRepository _vagaRepository;
 
-    public OcuparVagaEndpoint(EstacionamentoDbContext context)
+    public OcuparVagaEndpoint(VagaRepository vagaRepository)
     {
-        _context = context;
+        _vagaRepository = vagaRepository;
     }
 
     public override void Configure()
     {
-        Put("/vagas/{id}/ocupar"); // Método PUT para ocupar vaga
+        Put("/vagas/{id}/ocupar");
         AllowAnonymous();
     }
 
@@ -23,7 +23,7 @@ public class OcuparVagaEndpoint : EndpointWithoutRequest
     {
         var id = Route<Guid>("id");
 
-        var vaga = await _context.Vagas.FirstOrDefaultAsync(v => v.Id == id, ct);
+        var vaga = await _vagaRepository.BuscarPorIdAsync(id, ct);
 
         if (vaga is null)
         {
@@ -31,10 +31,9 @@ public class OcuparVagaEndpoint : EndpointWithoutRequest
             return;
         }
 
-        vaga.Ocupa(); // método da entidade Vaga que muda Disponível para false
-        await _context.SaveChangesAsync(ct);
+        vaga.Ocupa(); // marca como ocupada
+        await _vagaRepository.AtualizarAsync(vaga, ct);
 
-        await SendNoContentAsync(); // Resposta 204 No Context
+        await SendNoContentAsync();
     }
 }
-

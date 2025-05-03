@@ -1,66 +1,62 @@
 ﻿using FastEndpoints;
-using Estacionamento.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using Estacionamento.Domain.Entities;
 
-namespace Estacionamento.API.Endpoints
+namespace Estacionamento.API.Endpoints;
+
+public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
 {
-    public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
+    private readonly IMongoCollection<Vaga> _vagasCollection;
+    private readonly IMongoCollection<Loja> _lojasCollection;
+
+    public BuscarMelhorVagaEndpoint(
+        IMongoDatabase database)
     {
-        private readonly EstacionamentoDbContext _context;
+        _vagasCollection = database.GetCollection<Vaga>("Vagas");
+        _lojasCollection = database.GetCollection<Loja>("Lojas");
+    }
 
-        public BuscarMelhorVagaEndpoint(EstacionamentoDbContext context)
+    public override void Configure()
+    {
+        Get("/vagas/melhorvaga");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        var lojaNome = Query<string>("loja");
+
+        if (string.IsNullOrWhiteSpace(lojaNome))
         {
-            _context = context;
+            AddError("loja", "O parâmetro 'loja' é obrigatório.");
+            await SendErrorsAsync();
+            return;
         }
 
-        public override void Configure()
+        var loja = await _lojasCollection
+            .Find(l => l.Nome.ToLower() == lojaNome.ToLower())
+            .FirstOrDefaultAsync(ct);
+
+        if (loja is null)
         {
-            Get("/vagas/melhorvaga");
-            AllowAnonymous();
+            await SendNotFoundAsync();
+            return;
         }
 
-        public override async Task HandleAsync(CancellationToken ct)
+        var vagasDisponiveis = await _vagasCollection
+            .Find(v => v.Disponivel)
+            .ToListAsync(ct);
+
+        if (!vagasDisponiveis.Any())
         {
-            var lojaNome = Query<string>("loja");
-
-            if (string.IsNullOrWhiteSpace(lojaNome))
-            {
-                AddError("loja", "O parâmetro 'loja' é obrigatório.");
-                await SendErrorsAsync();
-                return;
-            }
-
-            var loja = await _context.Lojas
-                .FirstOrDefaultAsync(l => l.Nome.ToLower() == lojaNome.ToLower(), ct);
-
-            if (loja is null)
-            {
-                await SendNotFoundAsync();
-                return;
-            }
-
-            var vagasDisponiveis = await _context.Vagas
-                .Where(v => v.Disponivel)
-                .ToListAsync(ct);
-
-            if (!vagasDisponiveis.Any())
-            {
-                await SendNotFoundAsync();
-                return;
-            }
-
-            var melhorVaga = vagasDisponiveis
-                .OrderBy(v => Math.Abs(v.CoordenadaX - loja.CoordenadaX) + Math.Abs(v.CoordenadaY - loja.CoordenadaY))
-                .FirstOrDefault();
-
-            if (melhorVaga is null)
-            {
-                await SendNotFoundAsync();
-                return;
-            }
-
-            await SendOkAsync(melhorVaga);
+            await SendNotFoundAsync();
+            return;
         }
+
+        var melhorVaga = vagasDisponiveis
+            .OrderBy(v => Math.Abs(v.CoordenadaX - loja.CoordenadaX) + Math.Abs(v.CoordenadaY - loja.CoordenadaY))
+            .FirstOrDefault();
+
+        await SendOkAsync(melhorVaga);
     }
 }

@@ -1,15 +1,17 @@
 ﻿using FastEndpoints;
-using Estacionamento.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using Estacionamento.Infrastructure.Persistence.Repositories;
+using Estacionamento.Domain.Entities;
+using MongoDB.Driver;
 
 namespace Estacionamento.API.Endpoints;
+
 public class LiberarVagaEndpoint : EndpointWithoutRequest
 {
-    private readonly EstacionamentoDbContext _context;
+    private readonly VagaRepository _vagaRepository;
 
-    public LiberarVagaEndpoint(EstacionamentoDbContext context)
+    public LiberarVagaEndpoint(VagaRepository vagaRepository)
     {
-        _context = context;
+        _vagaRepository = vagaRepository;
     }
 
     public override void Configure()
@@ -20,9 +22,9 @@ public class LiberarVagaEndpoint : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var id = Route<Guid>("id"); // Pegando o id da rota
+        var id = Route<Guid>("id");
 
-        var vaga = await _context.Vagas.FirstOrDefaultAsync(v => v.Id == id, ct);
+        var vaga = await _vagaRepository.BuscarPorIdAsync(id, ct);
 
         if (vaga is null)
         {
@@ -30,10 +32,10 @@ public class LiberarVagaEndpoint : EndpointWithoutRequest
             return;
         }
 
-        vaga.Liberar(); // Método da entidade Vaga para liberar a vaga
-        await _context.SaveChangesAsync(ct);
+        vaga.Liberar();
+
+        await _vagaRepository.AtualizarAsync(vaga, ct);
 
         await SendNoContentAsync();
     }
 }
-
