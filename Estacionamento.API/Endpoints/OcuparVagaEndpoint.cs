@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Estacionamento.Infrastructure.Persistence.Repositories;
 using Estacionamento.Domain.Entities;
+using MongoDB.Bson;
 
 namespace Estacionamento.API.Endpoints;
 
@@ -21,9 +22,16 @@ public class OcuparVagaEndpoint : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var id = Route<Guid>("id");
+        var idString = Route<string>("id");
 
-        var vaga = await _vagaRepository.BuscarPorIdAsync(id, ct);
+        if (!ObjectId.TryParse(idString, out var objectId))
+        {
+            AddError("id", "Formato de ID inválido.");
+            await SendErrorsAsync(cancellation: ct);
+            return;
+        }
+
+        var vaga = await _vagaRepository.BuscarPorIdAsync(objectId, ct);
 
         if (vaga is null)
         {
@@ -31,7 +39,7 @@ public class OcuparVagaEndpoint : EndpointWithoutRequest
             return;
         }
 
-        vaga.Ocupa(); // marca como ocupada
+        vaga.Ocupa();
         await _vagaRepository.AtualizarAsync(vaga, ct);
 
         await SendNoContentAsync();

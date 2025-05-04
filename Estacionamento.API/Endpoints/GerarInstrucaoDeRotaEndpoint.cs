@@ -10,13 +10,11 @@ public class GerarInstrucaoDeRotaEndpoint : EndpointWithoutRequest<InstrucaoDeRo
 {
     private readonly IMongoCollection<Vaga> _vagasCollection;
     private readonly IMongoCollection<Loja> _lojasCollection;
-    private readonly RotaService _rotaService;
 
-    public GerarInstrucaoDeRotaEndpoint(IMongoDatabase database, RotaService rotaService)
+    public GerarInstrucaoDeRotaEndpoint(IMongoDatabase database)
     {
         _vagasCollection = database.GetCollection<Vaga>("Vagas");
         _lojasCollection = database.GetCollection<Loja>("Lojas");
-        _rotaService = rotaService;
     }
 
     public override void Configure()
@@ -32,7 +30,7 @@ public class GerarInstrucaoDeRotaEndpoint : EndpointWithoutRequest<InstrucaoDeRo
         if (string.IsNullOrWhiteSpace(lojaNome))
         {
             AddError("loja", "O parâmetro 'loja' é obrigatório.");
-            await SendErrorsAsync();
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
@@ -42,7 +40,7 @@ public class GerarInstrucaoDeRotaEndpoint : EndpointWithoutRequest<InstrucaoDeRo
 
         if (loja is null)
         {
-            await SendNotFoundAsync();
+            await SendNotFoundAsync(ct);
             return;
         }
 
@@ -50,9 +48,9 @@ public class GerarInstrucaoDeRotaEndpoint : EndpointWithoutRequest<InstrucaoDeRo
             .Find(v => v.Disponivel)
             .ToListAsync(ct);
 
-        if (!vagasDisponiveis.Any())
+        if (vagasDisponiveis.Count == 0)
         {
-            await SendNotFoundAsync();
+            await SendNotFoundAsync(ct);
             return;
         }
 
@@ -62,12 +60,11 @@ public class GerarInstrucaoDeRotaEndpoint : EndpointWithoutRequest<InstrucaoDeRo
 
         if (melhorVaga is null)
         {
-            await SendNotFoundAsync();
+            await SendNotFoundAsync(ct);
             return;
         }
 
-        var response = _rotaService.GerarInstrucao(melhorVaga, loja);
-
-        await SendOkAsync(response);
+        var response = RotaService.GerarInstrucao(melhorVaga, loja);
+        await SendOkAsync(response, ct);
     }
 }

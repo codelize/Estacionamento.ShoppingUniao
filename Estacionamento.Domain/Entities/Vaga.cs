@@ -6,8 +6,8 @@ namespace Estacionamento.Domain.Entities;
 public class Vaga
 {
     [BsonId]
-    [BsonRepresentation(BsonType.String)]
-    public Guid Id { get; private set; }
+    [BsonRepresentation(BsonType.ObjectId)]
+    public ObjectId Id { get; private set; }
 
     public string Numero { get; private set; } = string.Empty;
     public string Setor { get; private set; } = string.Empty;
@@ -17,7 +17,7 @@ public class Vaga
 
     public Vaga(string numero, string setor, int coordenadaX, int coordenadaY)
     {
-        Id = Guid.NewGuid();
+        Id = ObjectId.GenerateNewId(); // Corrigido aqui
         Numero = numero;
         Setor = setor;
         Disponivel = true; // Quando criada, a vaga estará livre
@@ -28,13 +28,7 @@ public class Vaga
     // Construtor vazio para MongoDB
     public Vaga() { }
 
-    public void Ocupa()
-    {
-        Disponivel = false;
-    }
+    public void Ocupa() => Disponivel = false;
 
-    public void Liberar()
-    {
-        Disponivel = true;
-    }
+    public void Liberar() => Disponivel = true;
 }

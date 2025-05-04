@@ -22,6 +22,13 @@ public class ListarVagasDisponiveisEndpoint : EndpointWithoutRequest<List<Vaga>>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var vagasDisponiveis = await _vagaRepository.ListarDisponiveisAsync(ct);
-        await SendAsync(vagasDisponiveis);
+
+        if (vagasDisponiveis is null || vagasDisponiveis.Count == 0)
+        {
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        await SendOkAsync(vagasDisponiveis, cancellation: ct);
     }
 }

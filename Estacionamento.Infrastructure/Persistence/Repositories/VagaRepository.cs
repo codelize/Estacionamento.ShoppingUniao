@@ -1,6 +1,7 @@
 ﻿using Estacionamento.Domain.Entities;
 using Estacionamento.Infrastructure.Configurations;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Estacionamento.Infrastructure.Persistence.Repositories;
@@ -15,7 +16,7 @@ public class VagaRepository
         _collection = database.GetCollection<Vaga>("Vagas");
     }
 
-    public async Task<Vaga?> BuscarPorIdAsync(Guid id, CancellationToken ct) =>
+    public async Task<Vaga?> BuscarPorIdAsync(ObjectId id, CancellationToken ct) =>
         await _collection.Find(v => v.Id == id).FirstOrDefaultAsync(ct);
 
     public async Task AtualizarAsync(Vaga vaga, CancellationToken ct) =>
@@ -25,7 +26,8 @@ public class VagaRepository
         await _collection.Find(v => v.Disponivel).ToListAsync(ct);
 
     public async Task<List<Vaga>> ListarTodasAsync(CancellationToken ct) =>
-    await _collection.Find(_ => true).ToListAsync(ct);
+        await _collection.Find(FilterDefinition<Vaga>.Empty).ToListAsync(ct);
 
-
+    public async Task InserirAsync(Vaga vaga, CancellationToken ct) =>
+        await _collection.InsertOneAsync(vaga, cancellationToken: ct);
 }

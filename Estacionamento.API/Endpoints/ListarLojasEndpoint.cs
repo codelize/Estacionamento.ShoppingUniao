@@ -22,6 +22,13 @@ public class ListarLojasEndpoint : EndpointWithoutRequest<List<Loja>>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var lojas = await _lojaRepository.ListarTodasAsync(ct);
-        await SendAsync(lojas);
+
+        if (lojas is null || lojas.Count == 0)
+        {
+            await SendNotFoundAsync(ct);
+            return;
+        }
+
+        await SendOkAsync(lojas, cancellation: ct);
     }
 }

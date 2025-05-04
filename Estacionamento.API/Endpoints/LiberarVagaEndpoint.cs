@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Estacionamento.Infrastructure.Persistence.Repositories;
 using Estacionamento.Domain.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Estacionamento.API.Endpoints;
@@ -22,9 +23,16 @@ public class LiberarVagaEndpoint : EndpointWithoutRequest
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var id = Route<Guid>("id");
+        var idString = Route<string>("id");
 
-        var vaga = await _vagaRepository.BuscarPorIdAsync(id, ct);
+        if (!ObjectId.TryParse(idString, out var objectId))
+        {
+            AddError("id", "Formato de ID inválido.");
+            await SendErrorsAsync(cancellation: ct); // ✅ Aqui estava o problema
+            return;
+        }
+
+        var vaga = await _vagaRepository.BuscarPorIdAsync(objectId, ct);
 
         if (vaga is null)
         {
@@ -33,9 +41,7 @@ public class LiberarVagaEndpoint : EndpointWithoutRequest
         }
 
         vaga.Liberar();
-
         await _vagaRepository.AtualizarAsync(vaga, ct);
-
         await SendNoContentAsync();
     }
 }

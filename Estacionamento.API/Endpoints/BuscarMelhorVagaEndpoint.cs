@@ -9,8 +9,7 @@ public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
     private readonly IMongoCollection<Vaga> _vagasCollection;
     private readonly IMongoCollection<Loja> _lojasCollection;
 
-    public BuscarMelhorVagaEndpoint(
-        IMongoDatabase database)
+    public BuscarMelhorVagaEndpoint(IMongoDatabase database)
     {
         _vagasCollection = database.GetCollection<Vaga>("Vagas");
         _lojasCollection = database.GetCollection<Loja>("Lojas");
@@ -29,12 +28,12 @@ public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
         if (string.IsNullOrWhiteSpace(lojaNome))
         {
             AddError("loja", "O parâmetro 'loja' é obrigatório.");
-            await SendErrorsAsync();
+            await SendErrorsAsync(cancellation: ct);
             return;
         }
 
         var loja = await _lojasCollection
-            .Find(l => l.Nome.ToLower() == lojaNome.ToLower())
+            .Find(Builders<Loja>.Filter.Eq(l => l.Nome.ToLower(), lojaNome.ToLower()))
             .FirstOrDefaultAsync(ct);
 
         if (loja is null)
@@ -47,7 +46,7 @@ public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
             .Find(v => v.Disponivel)
             .ToListAsync(ct);
 
-        if (!vagasDisponiveis.Any())
+        if (vagasDisponiveis.Count == 0)
         {
             await SendNotFoundAsync();
             return;
@@ -57,6 +56,6 @@ public class BuscarMelhorVagaEndpoint : EndpointWithoutRequest<Vaga>
             .OrderBy(v => Math.Abs(v.CoordenadaX - loja.CoordenadaX) + Math.Abs(v.CoordenadaY - loja.CoordenadaY))
             .FirstOrDefault();
 
-        await SendOkAsync(melhorVaga);
+        await SendErrorsAsync(cancellation: ct);
     }
 }

@@ -6,8 +6,8 @@ namespace Estacionamento.Domain.Entities;
 public class Loja
 {
     [BsonId]
-    [BsonRepresentation(BsonType.String)]
-    public Guid Id { get; private set; }
+    [BsonRepresentation(BsonType.ObjectId)]
+    public ObjectId Id { get; private set; }
 
     public string Nome { get; private set; } = string.Empty;
     public string Setor { get; private set; } = string.Empty;
@@ -17,7 +17,7 @@ public class Loja
     // Construtor para criação
     public Loja(string nome, string setor, int coordenadaX, int coordenadaY)
     {
-        Id = Guid.NewGuid();
+        Id = ObjectId.GenerateNewId(); // Correção aqui
         Nome = nome;
         Setor = setor;
         CoordenadaX = coordenadaX;

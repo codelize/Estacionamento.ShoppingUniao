@@ -5,7 +5,7 @@ namespace Estacionamento.Application.Services;
 
 public class RotaService
 {
-    public InstrucaoDeRotaResponse GerarInstrucao(Vaga vaga, Loja loja)
+    public static InstrucaoDeRotaResponse GerarInstrucao(Vaga vaga, Loja loja)
     {
         var distancia = Math.Abs(vaga.CoordenadaX - loja.CoordenadaX) + Math.Abs(vaga.CoordenadaY - loja.CoordenadaY);
 
